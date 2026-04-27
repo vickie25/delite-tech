@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  /* B&W Color Tokens */
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(0 0% 0%);
+
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(0 0% 0%);
+
+  --color-primary: hsl(0 0% 0%);
+  --color-primary-foreground: hsl(0 0% 100%);
+
+  --color-secondary: hsl(0 0% 96%);
+  --color-secondary-foreground: hsl(0 0% 0%);
+
+  --color-muted: hsl(0 0% 96%);
+  --color-muted-foreground: hsl(0 0% 45%);
+
+  --color-accent: hsl(0 0% 96%);
+  --color-accent-foreground: hsl(0 0% 0%);
+
+  --color-border: hsl(0 0% 89%);
+  --color-input: hsl(0 0% 89%);
+  --color-ring: hsl(0 0% 0%);
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+
+  --font-sans: 'Inter', sans-serif;
+}
+
+/* Base Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  border-color: hsl(0 0% 89%);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Shadcn CSS variable bridge (for components using hsl(var(--*))) */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --primary: 0 0% 0%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 89%;
+  --input: 0 0% 89%;
+  --ring: 0 0% 0%;
+  --radius: 0.5rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: hsl(0 0% 100%); }
+::-webkit-scrollbar-thumb { background: hsl(0 0% 89%); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(0 0% 45% / 0.3); }
+
+/* Text selection */
+::selection {
+  background-color: hsl(0 0% 0%);
+  color: hsl(0 0% 100%);
+}
+

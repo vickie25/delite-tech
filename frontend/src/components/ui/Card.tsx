@@ -1,17 +1,22 @@
 import * as React from "react"
+import { motion } from "framer-motion"
 import { cn } from "../../lib/utils"
 
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div
+  <motion.div
     ref={ref}
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    whileHover={{ y: -5, transition: { duration: 0.3 } }}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      "glass-card rounded-2xl overflow-hidden transition-shadow duration-300 hover:shadow-xl",
       className
     )}
-    {...props}
+    {...(props as any)}
   />
 ))
 Card.displayName = "Card"
@@ -35,7 +40,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "font-bodoni text-2xl font-semibold leading-tight text-primary",
       className
     )}
     {...props}
@@ -49,7 +54,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("font-jost text-sm text-secondary italic", className)}
     {...props}
   />
 ))
@@ -61,7 +66,7 @@ const CardContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("p-6 pt-0", className)}
+    className={cn("p-6 pt-0 font-jost", className)}
     {...props}
   />
 ))
@@ -80,3 +85,4 @@ const CardFooter = React.forwardRef<
 CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+

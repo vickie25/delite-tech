@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 const categories = [
@@ -14,7 +13,7 @@ const CategoryGrid: React.FC = () => {
     <section className="py-20 bg-neutral-50">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {categories.map((cat, index) => (
+          {categories.map((cat) => (
             <Link 
               key={cat.id} 
               to={`/category/${cat.id}`}

@@ -1,24 +1,26 @@
-import React from 'react';
+import { Truck, ShieldCheck, Headphones, CreditCard } from 'lucide-react';
 
 const signals = [
-  { icon: 'fa-truck-fast', title: 'Free Delivery', desc: 'Orders over $500' },
-  { icon: 'fa-shield-check', title: '2 Year Warranty', desc: 'Certified quality' },
-  { icon: 'fa-award', title: 'Genuine Products', desc: '100% Authentic' },
-  { icon: 'fa-credit-card', title: 'Secure Payment', desc: 'Encrypted checkout' },
+  { icon: Truck, title: 'Free Shipping', desc: 'On orders over KSh 50,000' },
+  { icon: ShieldCheck, title: 'Genuine Products', desc: '100% Authentic with warranty' },
+  { icon: Headphones, title: 'Expert Support', desc: '24/7 technical assistance' },
+  { icon: CreditCard, title: 'Secure Payment', desc: 'Encrypted & safe transactions' },
 ];
 
 const TrustSignals = () => {
   return (
-    <section className="border-y border-accent py-10 px-6">
-      <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8">
+    <section className="bg-grey-light py-8 px-6">
+      <div className="container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {signals.map((s, i) => (
-          <div key={i} className="flex items-center gap-4 group">
-            <div className="w-10 h-10 flex items-center justify-center bg-accent text-black rounded-full group-hover:bg-black group-hover:text-white transition-all">
-              <i className={`fa-solid ${s.icon} text-sm`}></i>
+          <div key={i} className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 border border-grey-mid">
+              <s.icon className="w-5 h-5 text-black" />
             </div>
-            <div>
-              <h4 className="text-[11px] font-black uppercase tracking-tight">{s.title}</h4>
-              <p className="text-[10px] text-black/40 font-bold uppercase">{s.desc}</p>
+            <div className="space-y-0.5">
+              <h4 className="text-[13px] font-poppins font-bold text-black uppercase tracking-tight">{s.title}</h4>
+              <p className="text-[11px] text-grey-text font-inter leading-tight">
+                {s.desc}
+              </p>
             </div>
           </div>
         ))}
@@ -28,3 +30,4 @@ const TrustSignals = () => {
 };
 
 export default TrustSignals;
+

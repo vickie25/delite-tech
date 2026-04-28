@@ -1,6 +1,3 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-
 const Banner = () => {
   return (
     <section className="px-8 py-10">

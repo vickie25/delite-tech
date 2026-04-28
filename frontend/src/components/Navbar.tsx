@@ -1,55 +1,153 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { Search, Heart, ShoppingBag, User, Menu, X } from 'lucide-react';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 const Navbar = () => {
   const { cartCount } = useCart();
+  const { isAuthenticated, logout } = useCustomerAuth();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const navLinks = [
+    { name: 'Phones', path: '/category/phones' },
+    { name: 'Laptops', path: '/category/laptops' },
+    { name: 'Tablets', path: '/category/tablets' },
+    { name: 'Accessories', path: '/category/accessories' },
+    { name: 'Wearables', path: '/category/wearables' },
+    { name: 'Gaming', path: '/category/gaming' },
+    { name: 'More', path: '/shop' },
+  ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-accent">
-      <div className="bg-black text-white py-1.5 text-center text-[10px] font-medium tracking-widest uppercase">
-        Free Shipping & Returns On All Orders
+    <header className="w-full z-50 bg-white">
+      {/* TOP UTILITY BAR */}
+      <div className="bg-black text-white h-8 flex items-center justify-between px-5">
+        <div className="flex-1"></div>
+        <p className="text-[12px] font-inter font-medium tracking-tight">
+          Free shipping on orders over $500
+        </p>
+        <div className="flex-1 flex justify-end gap-4">
+          {isAuthenticated ? (
+            <button onClick={handleLogout} className="text-[11px] font-inter hover:opacity-70 transition-opacity">
+              Logout
+            </button>
+          ) : (
+            <Link to="/login" className="text-[11px] font-inter hover:opacity-70 transition-opacity">Login</Link>
+          )}
+          <Link to="/contact" className="text-[11px] font-inter hover:opacity-70 transition-opacity">Support</Link>
+        </div>
       </div>
 
-      <nav className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-        <Link to="/" className="text-xl font-black tracking-tighter">
-          ELECT<span className="text-black/20">.</span>
-        </Link>
+      {/* MAIN HEADER */}
+      <div className="border-b border-grey-mid h-16 flex items-center">
+        <div className="container flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="text-[20px] font-poppins font-bold tracking-tight text-black flex-shrink-0">
+            DELIGHT TECH
+          </Link>
 
-        <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-[11px] font-bold tracking-widest hover:opacity-50 transition-opacity uppercase">Home</Link>
-          <Link to="/shop" className="text-[11px] font-bold tracking-widest hover:opacity-50 transition-opacity uppercase">Shop</Link>
-          <Link to="/category/phones" className="text-[11px] font-bold tracking-widest hover:opacity-50 transition-opacity uppercase">Phones</Link>
-          <Link to="/category/laptops" className="text-[11px] font-bold tracking-widest hover:opacity-50 transition-opacity uppercase">Laptops</Link>
-          <Link to="/contact" className="text-[11px] font-bold tracking-widest hover:opacity-50 transition-opacity uppercase">Contact</Link>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="relative hidden lg:block group">
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="hidden md:block flex-1 max-w-[480px] mx-8 relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-grey-text" />
             <input
               type="text"
-              placeholder="SEARCH"
-              className="bg-accent border-none py-1.5 px-4 pr-10 text-[10px] font-bold focus:ring-1 focus:ring-black outline-none transition-all w-40 group-hover:w-56"
+              placeholder="Search for products..."
+              className="w-full h-10 bg-grey-light border border-grey-mid rounded-full pl-10 pr-4 font-inter text-[13px] outline-none focus:border-black focus:bg-white transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <i className="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-[10px]"></i>
+          </form>
+
+          {/* Icons */}
+          <div className="flex items-center gap-5">
+            <Link to="/wishlist" className="text-black hover:opacity-70 transition-opacity hidden sm:block">
+              <Heart className="w-5 h-5" />
+            </Link>
+            <Link to="/cart" className="text-black hover:opacity-70 transition-opacity relative group">
+              <ShoppingBag className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[10px] font-bold w-4.5 h-4.5 flex items-center justify-center rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <Link to={isAuthenticated ? "/" : "/login"} className="text-black hover:opacity-70 transition-opacity">
+              <User className="w-5 h-5" />
+            </Link>
+            <button 
+              className="md:hidden text-black"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
-          
-          <Link to="/cart" className="relative group">
-            <i className="fa-solid fa-bag-shopping text-lg"></i>
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-black text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-          
-          <button className="md:hidden">
-            <i className="fa-solid fa-bars-staggered"></i>
-          </button>
         </div>
-      </nav>
+      </div>
+
+      {/* CATEGORY NAV */}
+      <div className="border-b border-grey-mid h-11 hidden md:flex items-center">
+        <div className="container overflow-x-auto no-scrollbar">
+          <nav className="flex items-center gap-0">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className="font-inter text-[13px] font-medium text-black px-4 h-11 flex items-center whitespace-nowrap hover:border-b-2 hover:border-black transition-all"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* MOBILE MENU */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white border-b border-grey-mid animate-in slide-in-from-top duration-300">
+          <div className="p-4 space-y-4">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-grey-text" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full h-10 bg-grey-light border border-grey-mid rounded-full pl-10 pr-4 text-[13px] outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
+            <nav className="flex flex-col gap-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className="font-inter text-[14px] font-medium py-2 border-b border-grey-mid last:border-0"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
 
 export default Navbar;
+

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const reviews = [
   { name: 'Sandra Cook', date: '5 Days ago', text: 'Well, this was simply amazing. Service! They have some great people there, and I mean above the expectations.', rating: 5, img: 'https://i.pravatar.cc/150?u=sandra' },
   { name: 'Francine Mossy', date: '2 Days ago', text: 'This site is helpful with networking and simply I am getting resume reviews weekly. overall, benefits a great amazing and legitimate job search.', rating: 5, img: 'https://i.pravatar.cc/150?u=francine' },

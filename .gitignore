@@ -47,3 +47,7 @@ coverage/
 .env.*
 !.env.example
 
+# Markdown docs
+*.md
+!README.md
+

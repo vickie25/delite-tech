@@ -1,55 +1,80 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #000000;
-  --color-secondary: #FFFFFF;
-  --color-accent: #F5F5F5;
-  --color-cta: #000000;
-  --color-cta-foreground: #FFFFFF;
-  --color-surface: #F5F5F5;
+  --color-primary: #1C1917;
+  --color-secondary: #44403C;
+  --color-cta: #CA8A04;
+  --color-background: #FAFAF9;
+  --color-text: #0C0A09;
+  
+  --font-bodoni: 'Bodoni Moda', serif;
+  --font-jost: 'Jost', sans-serif;
+  
+  --breakpoint-xs: 480px;
+
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
 
 @layer base {
   :root {
-    font-size: 14px; 
+    --primary: #1C1917;
+    --secondary: #44403C;
+    --cta: #CA8A04;
+    --background: #FAFAF9;
+    --text: #0C0A09;
   }
-  
+
   body {
-    background-color: white;
-    color: black;
-    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    font-family: var(--font-jost);
     -webkit-font-smoothing: antialiased;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-bodoni);
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer components {
+  .container {
+    @apply max-w-[1440px] mx-auto px-6 md:px-12;
+  }
+
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-glass;
+  }
+
+  .glass-header {
+    @apply bg-white/60 backdrop-blur-lg border-b border-white/10;
+  }
+
   .btn-primary {
-    @apply bg-black text-white px-4 py-2 rounded-none font-medium transition-all border border-black hover:bg-white hover:text-black;
+    @apply bg-primary text-white px-8 py-3 rounded-full font-jost font-semibold text-[14px] transition-all hover:bg-cta hover:shadow-lg active:scale-95;
   }
   
   .btn-secondary {
-    @apply bg-white text-black px-4 py-2 rounded-none font-medium transition-all border border-black hover:bg-black hover:text-white;
+    @apply bg-transparent text-primary px-8 py-3 rounded-full font-jost font-semibold text-[14px] transition-all border-2 border-primary hover:bg-primary hover:text-white active:scale-95;
   }
 
-  .card {
-    @apply bg-accent border border-transparent transition-all hover:border-black/10;
+  .section-title {
+    @apply font-bodoni text-[32px] md:text-[48px] font-semibold text-primary leading-tight;
   }
 
-  .section-padding {
-    @apply py-10 px-4;
+  .see-all-link {
+    @apply font-jost text-[14px] font-medium text-cta flex items-center gap-1 hover:gap-2 transition-all;
   }
 
-  .container-max {
-    @apply max-w-5xl mx-auto;
-  }
-
-  .glass {
-    @apply bg-white/80 backdrop-blur-md border border-black/5;
+  .product-grid {
+    @apply grid gap-6 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
   }
 }
 
-/* Custom Utilities */
 @utility no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -58,6 +83,14 @@
   }
 }
 
-.page-transition {
-  @apply transition-all duration-300 ease-in-out;
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+

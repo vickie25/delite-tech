@@ -25,3 +25,25 @@ Thumbs.db
 *.log
 npm-debug.log*
 
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# Test / coverage outputs
+coverage/
+.nyc_output/
+
+# TypeScript / bundler caches
+*.tsbuildinfo
+.vite/
+.cache/
+.eslintcache
+
+# Deployment / cloud
+.vercel/
+
+# Local env variants
+.env.*
+!.env.example
+

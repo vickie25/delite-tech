@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model AdminUser {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Customer {
+  id                     Int       @id @default(autoincrement())
+  name                   String
+  email                  String    @unique
+  passwordHash           String
+  phone                  String?
+  address                String?
+  refreshTokenHash       String?
+  resetPasswordTokenHash String?
+  resetPasswordExpiresAt DateTime?
+  orders                 Order[]
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
+
+model Category {
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  slug          String        @unique
+  displayOrder  Int           @default(0)
+  subcategories Subcategory[]
+  products      Product[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Subcategory {
+  id         Int       @id @default(autoincrement())
+  name       String
+  slug       String
+  categoryId Int
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products   Product[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([categoryId, name])
+  @@unique([categoryId, slug])
+}
+
+model Product {
+  id             Int          @id @default(autoincrement())
+  name           String
+  slug           String       @unique
+  brand          String
+  description    String
+  specifications Json
+  price          Float
+  salePrice      Float?
+  stockQuantity  Int          @default(0)
+  status         ProductStatus @default(PUBLISHED)
+  imageUrls      Json
+  categoryId     Int
+  subcategoryId  Int
+  category       Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  subcategory    Subcategory  @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
+  orderItems     OrderItem[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  orderNumber     String      @unique
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  deliveryAddress String
+  paymentMethod   String
+  subtotal        Float
+  deliveryFee     Float       @default(0)
+  totalAmount     Float
+  status          OrderStatus @default(PENDING)
+  customerId      Int?
+  customer        Customer?   @relation(fields: [customerId], references: [id])
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  productName String
+  unitPrice   Float
+  quantity    Int
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
+}
+
+model StoreSetting {
+  id            Int      @id @default(autoincrement())
+  storeName     String   @default("Delight Tech")
+  contactEmail  String   @default("info@delighttech.co.ke")
+  contactPhone  String   @default("+254700000000")
+  deliveryFee   Float    @default(0)
+  paymentConfig Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

@@ -2,10 +2,10 @@ import { useParams, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 
 const ALL_PRODUCTS = [
-  { id: 'p1', name: 'iPhone 17 Pro Max', price: 185000, originalPrice: 205000, img: '/src/assets/iphone 17 pro max.jpg', category: 'phones', brand: 'Apple', spec: '256GB / 12GB RAM', rating: 5, reviewsCount: 124, isNew: true },
-  { id: 'p2', name: 'MacBook Air M5', price: 195000, originalPrice: 220000, img: '/src/assets/macbook air m5.jpg', category: 'laptops', brand: 'Apple', spec: 'M5 / 16GB / 512GB', rating: 5, reviewsCount: 86, isSale: true },
-  { id: 'p3', name: 'ThinkPad X1 Carbon', price: 210000, img: '/src/assets/lenvovo think pad laptop.jpg', category: 'laptops', brand: 'Lenovo', spec: 'i7 / 32GB / 1TB', rating: 4, reviewsCount: 42 },
-  { id: 'p4', name: 'iPhone 16 Pro Max', price: 155000, originalPrice: 175000, img: '/src/assets/iphone 16 pro max.jpg', category: 'phones', brand: 'Apple', spec: '128GB / 8GB RAM', rating: 5, reviewsCount: 512, isSale: true },
+  { id: 'p1', name: 'iPhone 17 Pro Max', price: 185000, originalPrice: 205000, img: '/iphone 17 pro max.jpg', category: 'phones', brand: 'Apple', spec: '256GB / 12GB RAM', rating: 5, reviewsCount: 124, isNew: true },
+  { id: 'p2', name: 'MacBook Air M5', price: 195000, originalPrice: 220000, img: '/macbook air m5.jpg', category: 'laptops', brand: 'Apple', spec: 'M5 / 16GB / 512GB', rating: 5, reviewsCount: 86, isSale: true },
+  { id: 'p3', name: 'ThinkPad X1 Carbon', price: 210000, img: '/lenvovo think pad laptop.jpg', category: 'laptops', brand: 'Lenovo', spec: 'i7 / 32GB / 1TB', rating: 4, reviewsCount: 42 },
+  { id: 'p4', name: 'iPhone 16 Pro Max', price: 155000, originalPrice: 175000, img: '/iphone 16 pro max.jpg', category: 'phones', brand: 'Apple', spec: '128GB / 8GB RAM', rating: 5, reviewsCount: 512, isSale: true },
 ];
 
 const Category = () => {

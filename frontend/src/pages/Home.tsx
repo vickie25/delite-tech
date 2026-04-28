@@ -12,12 +12,12 @@ import { ArrowRight } from 'lucide-react';
 const Home = () => {
   // Mock data for secondary sections
   const laptopDeals = [
-    { id: 'l1', name: 'MacBook Pro M3', price: 245000, img: '/src/assets/macbook air m5.jpg', brand: 'Apple', spec: '14" / 16GB / 512GB', rating: 5, reviewsCount: 34, isNew: true },
-    { id: 'l2', name: 'HP Spectre x360', price: 175000, img: '/src/assets/lenvovo think pad laptop.jpg', brand: 'HP', spec: 'Intel i7 / 16GB / 1TB', rating: 4, reviewsCount: 18 },
-    { id: 'l3', name: 'Dell XPS 15', price: 215000, img: '/src/assets/lenvovo think pad laptop.jpg', brand: 'Dell', spec: 'OLED / i9 / 32GB', rating: 5, reviewsCount: 22, isSale: true },
-    { id: 'l4', name: 'Asus ROG Zephyrus', price: 195000, img: '/src/assets/lenvovo think pad laptop.jpg', brand: 'Asus', spec: 'RTX 4070 / 16GB', rating: 5, reviewsCount: 45 },
-    { id: 'l5', name: 'Lenovo Yoga 7i', price: 115000, img: '/src/assets/lenvovo think pad laptop.jpg', brand: 'Lenovo', spec: 'i5 / 8GB / 512GB', rating: 4, reviewsCount: 12 },
-    { id: 'l6', name: 'Surface Laptop 5', price: 135000, img: '/src/assets/macbook air m5.jpg', brand: 'Microsoft', spec: '13.5" / i7 / 16GB', rating: 4, reviewsCount: 29 },
+    { id: 'l1', name: 'MacBook Pro M3', price: 245000, img: '/macbook air m5.jpg', brand: 'Apple', spec: '14" / 16GB / 512GB', rating: 5, reviewsCount: 34, isNew: true },
+    { id: 'l2', name: 'HP Spectre x360', price: 175000, img: '/lenvovo think pad laptop.jpg', brand: 'HP', spec: 'Intel i7 / 16GB / 1TB', rating: 4, reviewsCount: 18 },
+    { id: 'l3', name: 'Dell XPS 15', price: 215000, img: '/lenvovo think pad laptop.jpg', brand: 'Dell', spec: 'OLED / i9 / 32GB', rating: 5, reviewsCount: 22, isSale: true },
+    { id: 'l4', name: 'Asus ROG Zephyrus', price: 195000, img: '/lenvovo think pad laptop.jpg', brand: 'Asus', spec: 'RTX 4070 / 16GB', rating: 5, reviewsCount: 45 },
+    { id: 'l5', name: 'Lenovo Yoga 7i', price: 115000, img: '/lenvovo think pad laptop.jpg', brand: 'Lenovo', spec: 'i5 / 8GB / 512GB', rating: 4, reviewsCount: 12 },
+    { id: 'l6', name: 'Surface Laptop 5', price: 135000, img: '/macbook air m5.jpg', brand: 'Microsoft', spec: '13.5" / i7 / 16GB', rating: 4, reviewsCount: 29 },
   ];
 
   const sectionVariants: Variants = {
@@ -109,7 +109,7 @@ const Home = () => {
           <motion.img 
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 1 }}
-            src="/src/assets/iphone 17 pro max.jpg" 
+            src="/iphone 17 pro max.jpg" 
             alt="Apple" 
             className="h-[120%] object-contain absolute right-[-100px] bottom-[-100px] rotate-[-15deg] z-0 opacity-50 group-hover:opacity-100 transition-opacity" 
           />

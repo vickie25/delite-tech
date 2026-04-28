@@ -4,18 +4,18 @@ import ProductCard from '../components/ProductCard';
 import { Filter, ChevronDown } from 'lucide-react';
 
 const ALL_PRODUCTS = [
-  { id: 'p1', name: 'iPhone 17 Pro Max', price: 185000, originalPrice: 205000, img: '/src/assets/iphone 17 pro max.jpg', category: 'Phones', brand: 'Apple', spec: '256GB / 12GB RAM', rating: 5, reviewsCount: 124, isNew: true },
-  { id: 'p2', name: 'MacBook Air M5', price: 195000, originalPrice: 220000, img: '/src/assets/macbook air m5.jpg', category: 'Laptops', brand: 'Apple', spec: 'M5 / 16GB / 512GB', rating: 5, reviewsCount: 86, isSale: true },
-  { id: 'p3', name: 'ThinkPad X1 Carbon', price: 210000, img: '/src/assets/lenvovo think pad laptop.jpg', category: 'Laptops', brand: 'Lenovo', spec: 'i7 / 32GB / 1TB', rating: 4, reviewsCount: 42 },
-  { id: 'p4', name: 'iPhone 16 Pro Max', price: 155000, originalPrice: 175000, img: '/src/assets/iphone 16 pro max.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 8GB RAM', rating: 5, reviewsCount: 512, isSale: true },
-  { id: 'p5', name: 'iPhone 15 Pro Max', price: 135000, img: '/src/assets/iphone 15 pro max black titanium.jpg', category: 'Phones', brand: 'Apple', spec: '256GB / 8GB RAM', rating: 5, reviewsCount: 89 },
-  { id: 'p6', name: 'HP Pavilion 15', price: 85000, img: '/src/assets/hp pavilion laptop.jpg', category: 'Laptops', brand: 'HP', spec: 'i5 / 8GB / 512GB', rating: 4, reviewsCount: 15 },
-  { id: 'p7', name: 'iPhone 14 Pro Black', price: 115000, img: '/src/assets/iphone 14 pro black.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 6GB RAM', rating: 4, reviewsCount: 210 },
-  { id: 'p8', name: 'iPhone 12 Pro Max', price: 95000, img: '/src/assets/iphone 12 pro max black.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 6GB RAM', rating: 4, reviewsCount: 340 },
-  { id: 'p9', name: 'iPhone 13 Blue', price: 85000, img: '/src/assets/iphone 13 blue.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 4GB RAM', rating: 5, reviewsCount: 180 },
-  { id: 'p10', name: 'iPhone SE White', price: 45000, img: '/src/assets/iphone SE (2nd Gen) white.jpg', category: 'Phones', brand: 'Apple', spec: '64GB / 3GB RAM', rating: 4, reviewsCount: 95 },
-  { id: 'p11', name: 'iPhone XR Blue', price: 35000, img: '/src/assets/iphone xr blue.jpg', category: 'Phones', brand: 'Apple', spec: '64GB / 3GB RAM', rating: 4, reviewsCount: 150 },
-  { id: 'p12', name: 'iPhone 11 Black', price: 55000, img: '/src/assets/iphone 11 black.jpg', category: 'Phones', brand: 'Apple', spec: '64GB / 4GB RAM', rating: 4, reviewsCount: 220 },
+  { id: 'p1', name: 'iPhone 17 Pro Max', price: 185000, originalPrice: 205000, img: '/iphone 17 pro max.jpg', category: 'Phones', brand: 'Apple', spec: '256GB / 12GB RAM', rating: 5, reviewsCount: 124, isNew: true },
+  { id: 'p2', name: 'MacBook Air M5', price: 195000, originalPrice: 220000, img: '/macbook air m5.jpg', category: 'Laptops', brand: 'Apple', spec: 'M5 / 16GB / 512GB', rating: 5, reviewsCount: 86, isSale: true },
+  { id: 'p3', name: 'ThinkPad X1 Carbon', price: 210000, img: '/lenvovo think pad laptop.jpg', category: 'Laptops', brand: 'Lenovo', spec: 'i7 / 32GB / 1TB', rating: 4, reviewsCount: 42 },
+  { id: 'p4', name: 'iPhone 16 Pro Max', price: 155000, originalPrice: 175000, img: '/iphone 16 pro max.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 8GB RAM', rating: 5, reviewsCount: 512, isSale: true },
+  { id: 'p5', name: 'iPhone 15 Pro Max', price: 135000, img: '/iphone 15 pro max black titanium.jpg', category: 'Phones', brand: 'Apple', spec: '256GB / 8GB RAM', rating: 5, reviewsCount: 89 },
+  { id: 'p6', name: 'HP Pavilion 15', price: 85000, img: '/hp pavilion laptop.jpg', category: 'Laptops', brand: 'HP', spec: 'i5 / 8GB / 512GB', rating: 4, reviewsCount: 15 },
+  { id: 'p7', name: 'iPhone 14 Pro Black', price: 115000, img: '/iphone 14 pro black.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 6GB RAM', rating: 4, reviewsCount: 210 },
+  { id: 'p8', name: 'iPhone 12 Pro Max', price: 95000, img: '/iphone 12 pro max black.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 6GB RAM', rating: 4, reviewsCount: 340 },
+  { id: 'p9', name: 'iPhone 13 Blue', price: 85000, img: '/iphone 13 blue.jpg', category: 'Phones', brand: 'Apple', spec: '128GB / 4GB RAM', rating: 5, reviewsCount: 180 },
+  { id: 'p10', name: 'iPhone SE White', price: 45000, img: '/iphone SE (2nd Gen) white.jpg', category: 'Phones', brand: 'Apple', spec: '64GB / 3GB RAM', rating: 4, reviewsCount: 95 },
+  { id: 'p11', name: 'iPhone XR Blue', price: 35000, img: '/iphone xr blue.jpg', category: 'Phones', brand: 'Apple', spec: '64GB / 3GB RAM', rating: 4, reviewsCount: 150 },
+  { id: 'p12', name: 'iPhone 11 Black', price: 55000, img: '/iphone 11 black.jpg', category: 'Phones', brand: 'Apple', spec: '64GB / 4GB RAM', rating: 4, reviewsCount: 220 },
 ];
 
 const Shop = () => {

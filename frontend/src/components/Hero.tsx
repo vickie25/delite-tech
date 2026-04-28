@@ -12,7 +12,7 @@ const slides = [
     description: 'Experience the new standard of hardware with our most advanced collection yet.',
     cta: 'Explore Collection',
     link: '/shop',
-    img: '/src/assets/iphone 17 pro max.jpg',
+    img: '/iphone 17 pro max.jpg',
     color: '#CA8A04'
   },
   {
@@ -22,7 +22,7 @@ const slides = [
     description: 'Boundless power meets a stunning minimalist design. Built for those who create.',
     cta: 'Learn More',
     link: '/category/laptops',
-    img: '/src/assets/macbook air m5.jpg',
+    img: '/macbook air m5.jpg',
     color: '#1C1917'
   }
 ];

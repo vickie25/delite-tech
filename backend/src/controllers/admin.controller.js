@@ -6,6 +6,8 @@ const parsePagination = (query) => {
   return { page, pageSize, skip: (page - 1) * pageSize };
 };
 
+const slugify = (value) => String(value || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+
 export const getAdminOverview = async (_req, res, next) => {
   try {
     const [customerCount, orderCount, productCount, pendingOrders, deliveredOrders, revenueAgg] =
@@ -164,21 +166,49 @@ export const getAdminCustomers = async (req, res, next) => {
 
 export const createAdminProduct = async (req, res, next) => {
   try {
-    const { name, price, stockQuantity, description, categoryId, brand, imageUrls, specifications } = req.body;
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const {
+      name,
+      price,
+      stockQuantity,
+      description,
+      categoryId,
+      subcategoryId,
+      brand,
+      imageUrls,
+      specifications,
+    } = req.body;
+
+    if (!name || !brand || categoryId === undefined || subcategoryId === undefined) {
+      return res
+        .status(400)
+        .json({ message: "name, brand, categoryId and subcategoryId are required" });
+    }
+
+    const normalizedPrice = Number(price);
+    const normalizedStock = Number(stockQuantity);
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) {
+      return res.status(400).json({ message: "price must be a valid non-negative number" });
+    }
+    if (!Number.isFinite(normalizedStock) || normalizedStock < 0) {
+      return res.status(400).json({ message: "stockQuantity must be a valid non-negative number" });
+    }
+
+    const slug = slugify(name);
 
     const product = await prisma.product.create({
       data: {
         name,
         slug,
-        price: Number(price),
-        stockQuantity: Number(stockQuantity),
-        description,
+        price: normalizedPrice,
+        stockQuantity: normalizedStock,
+        description: description || "",
         brand,
-        imageUrls,
-        specifications,
-        categoryId,
+        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
+        specifications: specifications ?? {},
+        categoryId: Number(categoryId),
+        subcategoryId: Number(subcategoryId),
       },
+      include: { category: true, subcategory: true },
     });
     return res.status(201).json(product);
   } catch (error) {
@@ -188,27 +218,42 @@ export const createAdminProduct = async (req, res, next) => {
 
 export const updateAdminProduct = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { name, price, stockQuantity, description, categoryId, brand, imageUrls, specifications } = req.body;
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ message: "Invalid product id" });
 
-    const updateData = {
-      name,
-      price: Number(price),
-      stockQuantity: Number(stockQuantity),
-      description,
-      brand,
-      imageUrls,
-      specifications,
-      categoryId,
-    };
+    const { name, price, stockQuantity, description, categoryId, subcategoryId, brand, imageUrls, specifications } =
+      req.body;
 
-    if (name) {
-      updateData.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const updateData = {};
+    if (name !== undefined) {
+      updateData.name = name;
+      updateData.slug = slugify(name);
     }
+    if (price !== undefined) {
+      const normalizedPrice = Number(price);
+      if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) {
+        return res.status(400).json({ message: "price must be a valid non-negative number" });
+      }
+      updateData.price = normalizedPrice;
+    }
+    if (stockQuantity !== undefined) {
+      const normalizedStock = Number(stockQuantity);
+      if (!Number.isFinite(normalizedStock) || normalizedStock < 0) {
+        return res.status(400).json({ message: "stockQuantity must be a valid non-negative number" });
+      }
+      updateData.stockQuantity = normalizedStock;
+    }
+    if (description !== undefined) updateData.description = description;
+    if (brand !== undefined) updateData.brand = brand;
+    if (imageUrls !== undefined) updateData.imageUrls = Array.isArray(imageUrls) ? imageUrls : [];
+    if (specifications !== undefined) updateData.specifications = specifications ?? {};
+    if (categoryId !== undefined) updateData.categoryId = Number(categoryId);
+    if (subcategoryId !== undefined) updateData.subcategoryId = Number(subcategoryId);
 
     const product = await prisma.product.update({
-      where: { id },
+      where: { id: Number(id) },
       data: updateData,
+      include: { category: true, subcategory: true },
     });
     return res.json(product);
   } catch (error) {
@@ -218,9 +263,10 @@ export const updateAdminProduct = async (req, res, next) => {
 
 export const deleteAdminProduct = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ message: "Invalid product id" });
     await prisma.product.delete({ where: { id } });
-    return res.status(204).end();
+    return res.json({ message: "Product deleted successfully" });
   } catch (error) {
     return next(error);
   }
@@ -231,7 +277,7 @@ export const deleteAdminProduct = async (req, res, next) => {
 export const getAdminCategories = async (_req, res, next) => {
   try {
     const categories = await prisma.category.findMany({
-      include: { subcategories: true },
+      include: { subcategories: { orderBy: { name: "asc" } } },
       orderBy: { name: "asc" },
     });
     return res.json(categories);
@@ -242,11 +288,18 @@ export const getAdminCategories = async (_req, res, next) => {
 
 export const createAdminCategory = async (req, res, next) => {
   try {
-    const { name } = req.body;
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    const category = await prisma.category.create({
-      data: { name, slug },
-    });
+    const { name, parentCategoryId } = req.body;
+    if (!name) return res.status(400).json({ message: "name is required" });
+
+    const slug = slugify(name);
+    if (parentCategoryId !== undefined && parentCategoryId !== null) {
+      const subcategory = await prisma.subcategory.create({
+        data: { name, slug, categoryId: Number(parentCategoryId) },
+      });
+      return res.status(201).json(subcategory);
+    }
+
+    const category = await prisma.category.create({ data: { name, slug } });
     return res.status(201).json(category);
   } catch (error) {
     return next(error);
@@ -255,9 +308,25 @@ export const createAdminCategory = async (req, res, next) => {
 
 export const updateAdminCategory = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { name } = req.body;
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ message: "Invalid category id" });
+
+    const { name, parentCategoryId, isSubcategory } = req.body;
+    if (!name) return res.status(400).json({ message: "name is required" });
+
+    const slug = slugify(name);
+    if (isSubcategory) {
+      const subcategory = await prisma.subcategory.update({
+        where: { id },
+        data: {
+          name,
+          slug,
+          ...(parentCategoryId !== undefined ? { categoryId: Number(parentCategoryId) } : {}),
+        },
+      });
+      return res.json(subcategory);
+    }
+
     const category = await prisma.category.update({
       where: { id },
       data: { name, slug },
@@ -270,9 +339,17 @@ export const updateAdminCategory = async (req, res, next) => {
 
 export const deleteAdminCategory = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ message: "Invalid category id" });
+
+    const isSubcategory = req.query?.isSubcategory === "true";
+    if (isSubcategory) {
+      await prisma.subcategory.delete({ where: { id } });
+      return res.json({ message: "Subcategory deleted successfully" });
+    }
+
     await prisma.category.delete({ where: { id } });
-    return res.status(204).end();
+    return res.json({ message: "Category deleted successfully" });
   } catch (error) {
     return next(error);
   }

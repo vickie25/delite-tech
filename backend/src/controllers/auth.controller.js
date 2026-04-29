@@ -9,6 +9,8 @@ import {
   signRefreshToken,
   verifyRefreshToken,
 } from "../utils/token.js";
+import { sendMail } from "../services/mailer.service.js";
+import { loadEmailTemplate } from "../services/email-template.service.js";
 
 const publicCustomer = {
   id: true,
@@ -74,6 +76,23 @@ export const registerCustomer = async (req, res, next) => {
       where: { id: customer.id },
       data: { refreshTokenHash: hashToken(refreshToken) },
     });
+
+    try {
+      const welcomeHtml = await loadEmailTemplate("welcome.html");
+      const personalizedWelcomeHtml = welcomeHtml.replace(
+        "https://delight.tech/shop",
+        `${env.frontendBaseUrl}/shop`,
+      );
+
+      await sendMail({
+        to: customer.email,
+        subject: "Welcome to Delight Tech",
+        text: `Welcome to Delight Tech, ${customer.name}. Explore the collection: ${env.frontendBaseUrl}/shop`,
+        html: personalizedWelcomeHtml,
+      });
+    } catch (mailError) {
+      console.error("[mailer] Failed to send welcome email:", mailError.message);
+    }
 
     return res.status(201).json({
       message: "Customer registered successfully",
@@ -210,6 +229,36 @@ export const requestPasswordReset = async (req, res, next) => {
         data: { resetPasswordTokenHash: resetTokenHash, resetPasswordExpiresAt },
       });
 
+      const resetUrl = `${env.frontendBaseUrl}/reset-password?token=${encodeURIComponent(rawResetToken)}`;
+      const messageText = `Hello ${customer.name || "customer"},
+
+We received a request to reset your Delight Tech account password.
+
+Use this link to reset your password:
+${resetUrl}
+
+This link expires in 1 hour.
+
+If you did not request this change, you can safely ignore this email.`;
+
+      const messageHtml = `
+        <p>Hello ${customer.name || "customer"},</p>
+        <p>We received a request to reset your Delight Tech account password.</p>
+        <p>
+          Use this link to reset your password:<br />
+          <a href="${resetUrl}">${resetUrl}</a>
+        </p>
+        <p>This link expires in <strong>1 hour</strong>.</p>
+        <p>If you did not request this change, you can safely ignore this email.</p>
+      `;
+
+      await sendMail({
+        to: customer.email,
+        subject: "Delight Tech password reset",
+        text: messageText,
+        html: messageHtml,
+      });
+
       const response = {
         message: "If this email exists, a password reset token has been issued",
       };
@@ -321,6 +370,15 @@ export const loginAdmin = async (req, res, next) => {
         email: admin.email,
       },
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const logoutAdmin = async (_req, res, next) => {
+  try {
+    // JWT-based admin sessions are client-side; endpoint exists for explicit admin logout flow.
+    return res.json({ message: "Admin logout successful" });
   } catch (error) {
     return next(error);
   }

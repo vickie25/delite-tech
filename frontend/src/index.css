@@ -71,7 +71,7 @@
   }
 
   .product-grid {
-    @apply grid gap-6 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+    @apply grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
   }
 }
 

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@700&family=Jost:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            font-family: 'Jost', Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrapper {
+            padding: 60px 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #ECFDF5;
+            color: #10B981;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #64748B;
+            margin-bottom: 48px;
+        }
+        .details-card {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: left;
+            margin-bottom: 48px;
+        }
+        .details-header {
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000000;
+        }
+        .info-grid {
+            display: table;
+            width: 100%;
+        }
+        .info-col {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+        .info-item {
+            margin-bottom: 24px;
+        }
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 4px;
+        }
+        .info-desc {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.5;
+        }
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background-color: #000000;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .next-steps {
+            margin-top: 48px;
+            color: #64748B;
+        }
+        .next-steps h3 {
+            color: #000000;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="success-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            
+            <h1>Order Confirmed.</h1>
+            <p class="subtitle">Your order has been received and is being prepared by our experts.</p>
+
+            <div class="details-card">
+                <div class="details-header">
+                    <div>
+                        <div class="label">Order Number</div>
+                        <div class="value">#{{orderNumber}}</div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-col">
+                        <div class="info-item">
+                            <div class="info-title">Processing</div>
+                            <div class="info-desc">Preparing your high-performance hardware.</div>
+                        </div>
+                    </div>
+                    <div class="info-col">
+                        <div class="info-item">
+                            <div class="info-title">Estimated Delivery</div>
+                            <div class="info-desc">Expected arrival in 2-4 business days.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h3>What's Next?</h3>
+                <p>You'll receive another email with a tracking link as soon as your premium package departs our facility.</p>
+            </div>
+
+            <a href="https://delight.tech/account" class="btn">View Order Status</a>
+        </div>
+    </div>
+</body>
+</html>

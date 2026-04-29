@@ -1,9 +1,10 @@
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle, Package, Truck, ArrowRight, Download } from 'lucide-react';
 
 const Confirmation = () => {
-  const orderNumber = Math.random().toString(36).toUpperCase().substring(2, 10);
+  const location = useLocation();
+  const orderNumber = location.state?.orderNumber || Math.random().toString(36).toUpperCase().substring(2, 10);
 
   return (
     <div className="bg-white py-24">

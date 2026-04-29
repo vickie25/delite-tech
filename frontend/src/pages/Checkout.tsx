@@ -3,19 +3,60 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { ShieldCheck, Lock, CreditCard, Smartphone, Wallet, ChevronRight, Loader2 } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const Checkout = () => {
   const { cart, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState("");
+  const [formState, setFormState] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    address: "",
+    city: "",
+    phone: "",
+    paymentMethod: "card",
+  });
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setIsProcessing(true);
-    // Simulate payment processing
-    setTimeout(() => {
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customerName: `${formState.firstName} ${formState.lastName}`.trim(),
+          customerEmail: formState.email,
+          customerPhone: formState.phone,
+          deliveryAddress: `${formState.address}, ${formState.city}`,
+          paymentMethod: formState.paymentMethod,
+          items: cart.map((item) => ({
+            productId: Number(item.id),
+            quantity: item.quantity,
+          })),
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data?.message || "Failed to place order");
+      }
+
       clearCart();
-      navigate('/confirmation');
-    }, 2500);
+      navigate('/confirmation', {
+        state: { orderNumber: data?.order?.orderNumber || "PENDING" },
+      });
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Failed to place order");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (cart.length === 0) {
@@ -64,27 +105,27 @@ const Checkout = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[13px] font-bold text-black font-poppins">First Name</label>
-                  <input type="text" required placeholder="John" className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
+                  <input type="text" required placeholder="John" value={formState.firstName} onChange={(e) => setFormState((prev) => ({ ...prev, firstName: e.target.value }))} className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[13px] font-bold text-black font-poppins">Last Name</label>
-                  <input type="text" required placeholder="Doe" className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
+                  <input type="text" required placeholder="Doe" value={formState.lastName} onChange={(e) => setFormState((prev) => ({ ...prev, lastName: e.target.value }))} className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-[13px] font-bold text-black font-poppins">Email Address</label>
-                  <input type="email" required placeholder="john@example.com" className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
+                  <input type="email" required placeholder="john@example.com" value={formState.email} onChange={(e) => setFormState((prev) => ({ ...prev, email: e.target.value }))} className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-[13px] font-bold text-black font-poppins">Street Address</label>
-                  <input type="text" required placeholder="123 Tech Street, Westlands" className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
+                  <input type="text" required placeholder="123 Tech Street, Westlands" value={formState.address} onChange={(e) => setFormState((prev) => ({ ...prev, address: e.target.value }))} className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[13px] font-bold text-black font-poppins">City</label>
-                  <input type="text" required placeholder="Nairobi" className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
+                  <input type="text" required placeholder="Nairobi" value={formState.city} onChange={(e) => setFormState((prev) => ({ ...prev, city: e.target.value }))} className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[13px] font-bold text-black font-poppins">Phone Number</label>
-                  <input type="tel" required placeholder="+254 700 000 000" className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
+                  <input type="tel" required placeholder="+254 700 000 000" value={formState.phone} onChange={(e) => setFormState((prev) => ({ ...prev, phone: e.target.value }))} className="w-full bg-white border border-grey-mid rounded-lg px-4 py-3 text-[14px] font-inter outline-none focus:border-black transition-all" />
                 </div>
               </div>
             </section>
@@ -103,7 +144,7 @@ const Checkout = () => {
                   { id: 'crypto', name: 'Crypto', icon: Wallet },
                 ].map((m) => (
                   <label key={m.id} className="relative block cursor-pointer group">
-                    <input type="radio" name="payment" value={m.id} defaultChecked={m.id === 'card'} className="peer sr-only" />
+                    <input type="radio" name="payment" value={m.id} checked={formState.paymentMethod === m.id} onChange={(e) => setFormState((prev) => ({ ...prev, paymentMethod: e.target.value }))} className="peer sr-only" />
                     <div className="border border-grey-mid rounded-xl p-6 transition-all peer-checked:border-black peer-checked:ring-1 peer-checked:ring-black hover:bg-grey-light/50 flex flex-col items-center gap-3 text-center">
                       <m.icon className="w-6 h-6 text-grey-text peer-checked:text-black" />
                       <span className="text-[14px] font-bold text-black">{m.name}</span>
@@ -182,6 +223,7 @@ const Checkout = () => {
                   </>
                 )}
               </button>
+              {error && <p className="text-[12px] text-red-600 text-center">{error}</p>}
 
               {/* Trust Badge */}
               <div className="flex items-center justify-center gap-2 py-2 px-4 bg-grey-light rounded-lg border border-grey-mid">

@@ -368,6 +368,7 @@ export const loginAdmin = async (req, res, next) => {
         id: admin.id,
         name: admin.name,
         email: admin.email,
+        role: admin.role || "MANAGER",
       },
     });
   } catch (error) {

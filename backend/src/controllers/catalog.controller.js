@@ -100,6 +100,11 @@ export const createOrder = async (req, res, next) => {
     const deliveryFee = 0;
     const totalAmount = subtotal + deliveryFee;
 
+    const paymentStatus =
+      String(paymentMethod).toLowerCase() === "cod" || String(paymentMethod).toLowerCase().includes("delivery")
+        ? "UNPAID"
+        : "PAID";
+
     const order = await prisma.order.create({
       data: {
         orderNumber: generateOrderNumber(),
@@ -108,6 +113,7 @@ export const createOrder = async (req, res, next) => {
         customerPhone,
         deliveryAddress,
         paymentMethod,
+        paymentStatus,
         subtotal,
         deliveryFee,
         totalAmount,

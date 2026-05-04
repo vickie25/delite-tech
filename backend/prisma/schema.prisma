@@ -23,6 +23,7 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  REFUNDED
 }
 
 model AdminUser {
@@ -30,6 +31,7 @@ model AdminUser {
   name         String
   email        String   @unique
   passwordHash String
+  role         String   @default("MANAGER")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -44,7 +46,10 @@ model Customer {
   refreshTokenHash       String?
   resetPasswordTokenHash String?
   resetPasswordExpiresAt DateTime?
+  isActive               Boolean   @default(true)
+  notes                  String?
   orders                 Order[]
+  reviews                Review[]
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 }
@@ -54,6 +59,9 @@ model Category {
   name          String        @unique
   slug          String        @unique
   displayOrder  Int           @default(0)
+  icon          String?
+  imageUrl      String?
+  isActive      Boolean       @default(true)
   subcategories Subcategory[]
   products      Product[]
   createdAt     DateTime      @default(now())
@@ -84,6 +92,9 @@ model Product {
   price          Float
   salePrice      Float?
   stockQuantity  Int          @default(0)
+  reorderLevel   Int          @default(5)
+  sku            String?
+  tags           Json         @default("[]")
   status         ProductStatus @default(PUBLISHED)
   imageUrls      Json
   categoryId     Int
@@ -91,6 +102,8 @@ model Product {
   category       Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   subcategory    Subcategory  @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
   orderItems     OrderItem[]
+  reviews        Review[]
+  stockLogs      StockLog[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
@@ -103,10 +116,12 @@ model Order {
   customerPhone   String
   deliveryAddress String
   paymentMethod   String
+  paymentStatus   String      @default("UNPAID")
   subtotal        Float
   deliveryFee     Float       @default(0)
   totalAmount     Float
   status          OrderStatus @default(PENDING)
+  internalNotes   String?
   customerId      Int?
   customer        Customer?   @relation(fields: [customerId], references: [id])
   items           OrderItem[]
@@ -126,12 +141,67 @@ model OrderItem {
 }
 
 model StoreSetting {
-  id            Int      @id @default(autoincrement())
-  storeName     String   @default("Delight Tech")
-  contactEmail  String   @default("info@delighttech.co.ke")
-  contactPhone  String   @default("+254700000000")
-  deliveryFee   Float    @default(0)
-  paymentConfig Json
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                    Int      @id @default(autoincrement())
+  storeName             String   @default("Delight Tech")
+  logoUrl               String?
+  currency              String   @default("KES")
+  timezone              String   @default("Africa/Nairobi")
+  contactEmail          String   @default("info@delighttech.co.ke")
+  contactPhone          String   @default("+254700000000")
+  deliveryFee           Float    @default(0)
+  freeShippingThreshold Float?
+  shippingZones         Json     @default("[]")
+  taxRate               Float    @default(0)
+  taxLabel              String   @default("VAT")
+  notificationSettings Json    @default("{}")
+  paymentConfig         Json
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Review {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  customerId  Int?
+  authorName  String
+  authorEmail String?
+  rating      Int
+  body        String
+  status      String    @default("PENDING")
+  adminReply  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+}
+
+model Promotion {
+  id             Int       @id @default(autoincrement())
+  name           String
+  discountType   String
+  value          Float?
+  code           String    @unique
+  usageCount     Int       @default(0)
+  usageLimit     Int?
+  minOrderValue  Float?
+  categoryIds    Json?
+  productIds     Json?
+  startsAt       DateTime?
+  endsAt         DateTime?
+  active         Boolean   @default(true)
+  flashProductId Int?
+  flashEndsAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model StockLog {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  delta       Int
+  previousQty Int
+  newQty      Int
+  reason      String?
+  createdAt   DateTime @default(now())
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }

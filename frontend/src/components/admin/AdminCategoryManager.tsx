@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 
 const AdminCategoryManager: React.FC = () => {
   const [categories, setCategories] = useState<any[]>([]);
+  const [dragId, setDragId] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [parentCategoryId, setParentCategoryId] = useState<string>('');
@@ -53,6 +54,24 @@ const AdminCategoryManager: React.FC = () => {
     }
   };
 
+  const handleDropOn = async (targetId: number) => {
+    if (dragId == null || dragId === targetId) return;
+    const idx = categories.findIndex((c) => c.id === dragId);
+    const tdx = categories.findIndex((c) => c.id === targetId);
+    if (idx < 0 || tdx < 0) return;
+    const next = [...categories];
+    const [removed] = next.splice(idx, 1);
+    next.splice(tdx, 0, removed);
+    const orderedIds = next.map((c) => c.id);
+    try {
+      await adminPost('/api/admin/categories/reorder', { orderedIds });
+      await fetchCategories();
+    } catch (err) {
+      console.error('Reorder failed:', err);
+    }
+    setDragId(null);
+  };
+
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return;
     try {
@@ -75,7 +94,7 @@ const AdminCategoryManager: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-bold text-black dark:text-white tracking-tight uppercase">System Taxonomy</h3>
-          <p className="text-[11px] text-zinc-400 font-bold uppercase mt-1">Organize inventory tiers</p>
+          <p className="text-[11px] text-zinc-400 font-bold uppercase mt-1">Drag cards to set display priority · Slug shown for URL preview</p>
         </div>
         <Button
           variant="default"
@@ -128,7 +147,11 @@ const AdminCategoryManager: React.FC = () => {
             <motion.div 
               layout
               key={cat.id}
-              className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-5 group hover:shadow-md transition-all relative overflow-hidden"
+              draggable
+              onDragStart={() => setDragId(cat.id)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => handleDropOn(cat.id)}
+              className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-5 group hover:shadow-md transition-all relative overflow-hidden cursor-grab active:cursor-grabbing"
             >
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-zinc-50 dark:bg-zinc-800 rounded-lg flex items-center justify-center text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors">
@@ -151,7 +174,10 @@ const AdminCategoryManager: React.FC = () => {
                   ) : (
                     <div className="truncate">
                       <p className="text-[14px] font-bold text-black dark:text-white leading-tight truncate">{cat.name}</p>
-                      <p className="text-[10px] text-zinc-400 font-bold uppercase mt-0.5">{cat.subcategories?.length || 0} Sub-tiers</p>
+                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">/{cat.slug}</p>
+                      <p className="text-[10px] text-zinc-400 font-bold uppercase mt-0.5">
+                        {(cat as any)._count?.products ?? 0} products · {cat.subcategories?.length || 0} subcategories
+                      </p>
                     </div>
                   )}
                 </div>

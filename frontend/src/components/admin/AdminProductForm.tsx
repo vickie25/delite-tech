@@ -14,11 +14,17 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ product, categories
   const [formData, setFormData] = useState({
     name: product?.name || '',
     price: product?.price || '',
+    salePrice: product?.salePrice ?? '',
     stockQuantity: product?.stockQuantity || '',
     description: product?.description || '',
     categoryId: product?.categoryId || '',
     subcategoryId: product?.subcategoryId || '',
     brand: product?.brand || '',
+    sku: product?.sku || '',
+    tags: Array.isArray(product?.tags) ? product.tags.join(', ') : '',
+    reorderLevel: product?.reorderLevel ?? '',
+    status: product?.status === 'DRAFT' ? 'DRAFT' : 'PUBLISHED',
+    variantsJson: JSON.stringify((product?.specifications as any)?.variants || [], null, 2),
     specifications: product?.specifications || {},
     imageUrls: product?.imageUrls || [],
   });
@@ -54,12 +60,33 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ product, categories
     
     if (!formData.subcategoryId) return;
 
+    let variants: unknown[] = [];
+    try {
+      variants = formData.variantsJson ? JSON.parse(formData.variantsJson) : [];
+      if (!Array.isArray(variants)) variants = [];
+    } catch {
+      variants = [];
+    }
+    const tags = formData.tags
+      .split(',')
+      .map((t: string) => t.trim())
+      .filter(Boolean);
+
     onSave({
-      ...formData,
+      name: formData.name,
+      price: formData.price,
+      stockQuantity: formData.stockQuantity,
+      description: formData.description,
       categoryId: Number(formData.categoryId),
       subcategoryId: Number(formData.subcategoryId),
+      brand: formData.brand,
       imageUrls: imagePreviews,
-      specifications: formData.specifications || {},
+      salePrice: formData.salePrice === '' ? null : Number(formData.salePrice),
+      sku: formData.sku || null,
+      tags,
+      reorderLevel: formData.reorderLevel === '' ? undefined : Number(formData.reorderLevel),
+      status: formData.status,
+      specifications: { ...(formData.specifications || {}), variants },
       images: imageFiles,
     });
   };
@@ -103,6 +130,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ product, categories
               { id: 'foundation', name: 'Information', desc: 'Basics & Details' },
               { id: 'aesthetics', name: 'Media Assets', desc: 'Images & Display' },
               { id: 'parameters', name: 'Classification', desc: 'Category & Brand' },
+              { id: 'variants', name: 'Variants & Tags', desc: 'SKU, tags, options' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -134,16 +162,37 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ product, categories
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Valuation (KSh)</label>
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Price (KSh)</label>
                       <input type="number" required value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold text-black dark:text-white outline-none focus:border-black dark:focus:border-cta transition-all" />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Stock Depth</label>
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Compare-at (KSh)</label>
+                      <input type="number" value={formData.salePrice as any} onChange={(e) => setFormData({...formData, salePrice: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold text-black dark:text-white outline-none focus:border-black dark:focus:border-cta transition-all" placeholder="Optional" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Stock quantity</label>
                       <input type="number" required value={formData.stockQuantity} onChange={(e) => setFormData({...formData, stockQuantity: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold text-black dark:text-white outline-none focus:border-black dark:focus:border-cta transition-all" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Reorder level</label>
+                      <input type="number" value={formData.reorderLevel as any} onChange={(e) => setFormData({...formData, reorderLevel: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold text-black dark:text-white outline-none focus:border-black dark:focus:border-cta transition-all" placeholder="Default 5" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="space-y-1.5 flex-grow">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Status</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as 'DRAFT' | 'PUBLISHED' })}
+                        className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold"
+                      >
+                        <option value="PUBLISHED">Active (published)</option>
+                        <option value="DRAFT">Draft</option>
+                      </select>
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Technical Summary</label>
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Description (rich text / HTML)</label>
                     <textarea rows={5} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-medium text-zinc-600 dark:text-zinc-300 outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-black dark:focus:border-cta transition-all resize-none" />
                   </div>
                 </div>
@@ -192,7 +241,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ product, categories
                 <div className="space-y-6">
                   <div className="space-y-6">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Brand Identifier</label>
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Brand</label>
                       <input type="text" value={formData.brand} onChange={(e) => setFormData({...formData, brand: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold text-black dark:text-white outline-none focus:bg-white dark:focus:bg-zinc-900" />
                     </div>
                     <div className="space-y-1.5">
@@ -233,6 +282,29 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ product, categories
                         ))}
                       </select>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'variants' && (
+                <div className="space-y-6 max-w-2xl">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">SKU / barcode</label>
+                    <input type="text" value={formData.sku} onChange={(e) => setFormData({ ...formData, sku: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Tags (comma-separated)</label>
+                    <input type="text" value={formData.tags} onChange={(e) => setFormData({ ...formData, tags: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3 text-[13px] font-bold" placeholder="flagship, 5g, oled" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">Variants (JSON array)</label>
+                    <p className="text-[11px] text-zinc-500">{`Example: [{"name":"Color","options":["Black","Silver"]},{"name":"Storage","options":["128GB","256GB"]}]`}</p>
+                    <textarea
+                      rows={10}
+                      value={formData.variantsJson}
+                      onChange={(e) => setFormData({ ...formData, variantsJson: e.target.value })}
+                      className="w-full font-mono text-[12px] bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-3"
+                    />
                   </div>
                 </div>
               )}

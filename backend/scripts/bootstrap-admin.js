@@ -29,11 +29,13 @@ const main = async () => {
     update: {
       name: adminName,
       passwordHash,
+      role: "SUPER_ADMIN",
     },
     create: {
       name: adminName,
       email: adminEmail,
       passwordHash,
+      role: "SUPER_ADMIN",
     },
   });
 

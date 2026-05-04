@@ -2,6 +2,7 @@ export type Admin = {
   id: number;
   name: string;
   email: string;
+  role?: string;
 };
 
 export type AdminLoginResponse = {
@@ -111,6 +112,21 @@ export const adminPut = async <T>(path: string, data: any): Promise<T> => {
   });
   const body = await parseResponseBody(response);
   if (!response.ok) throw new Error((body as any)?.message || "Failed to update data");
+  return body as T;
+};
+
+export const adminPatch = async <T>(path: string, data: any): Promise<T> => {
+  const accessToken = getBearerToken();
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+  const body = await parseResponseBody(response);
+  if (!response.ok) throw new Error((body as any)?.message || "Failed to patch data");
   return body as T;
 };
 

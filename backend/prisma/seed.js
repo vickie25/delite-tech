@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import pg from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -12,33 +13,40 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('Starting seeding...');
 
-  // 1. Clear existing data
+  await prisma.stockLog.deleteMany().catch(() => {});
+  await prisma.review.deleteMany().catch(() => {});
+  await prisma.promotion.deleteMany().catch(() => {});
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
+  await prisma.customer.deleteMany().catch(() => {});
   await prisma.product.deleteMany();
   await prisma.subcategory.deleteMany();
   await prisma.category.deleteMany();
   await prisma.adminUser.deleteMany();
   await prisma.storeSetting.deleteMany();
 
-  // 2. Create Admin User
   await prisma.adminUser.create({
     data: {
       name: 'Admin',
       email: 'admin@elect.com',
-      passwordHash: 'admin123', // In a real app, hash this!
-    }
+      passwordHash: 'admin123',
+      role: 'SUPER_ADMIN',
+    },
   });
 
-  // 3. Create Store Settings
   await prisma.storeSetting.create({
     data: {
       storeName: 'Delight Tech',
       contactEmail: 'info@delighttech.co.ke',
       contactPhone: '+254 700 000 000',
       deliveryFee: 500,
-      paymentConfig: { methods: ['M-Pesa', 'Card', 'Bank Transfer'] },
-    }
+      freeShippingThreshold: 50000,
+      shippingZones: [{ name: 'Nairobi', rate: 300 }, { name: 'Rest of Kenya', rate: 500 }],
+      taxRate: 16,
+      taxLabel: 'VAT',
+      notificationSettings: { newOrders: true, lowStock: true, newReviews: true },
+      paymentConfig: { mpesa: true, card: true, cod: true, paypal: false },
+    },
   });
 
   // 4. Categories and Subcategories
@@ -160,25 +168,140 @@ async function main() {
     }
   ];
 
+  const createdProducts = [];
   for (const prod of sampleProducts) {
     const category = createdCategories.find(c => c.name === prod.categoryName);
     const subcategory = category.subcategories.find(s => s.name === prod.subcategoryName);
 
-    await prisma.product.create({
+    const p = await prisma.product.create({
       data: {
         name: prod.name,
         slug: prod.slug,
         brand: prod.brand,
         description: prod.description,
-        specifications: prod.specifications,
+        specifications: { ...prod.specifications, variants: [{ name: 'Color', options: ['Default'] }] },
         price: prod.price,
+        sku: `SKU-${prod.slug.slice(0, 8).toUpperCase()}`,
+        tags: ['electronics', prod.categoryName.toLowerCase()],
+        reorderLevel: 5,
         stockQuantity: prod.stockQuantity,
         imageUrls: prod.imageUrls,
         categoryId: category.id,
         subcategoryId: subcategory.id
       }
     });
+    createdProducts.push(p);
   }
+
+  const pw = await bcrypt.hash('password123', 10);
+  const c1 = await prisma.customer.create({
+    data: { name: 'Jane Wanjiku', email: 'jane@example.com', passwordHash: pw, phone: '+254712000001' },
+  });
+  const c2 = await prisma.customer.create({
+    data: { name: 'Peter Otieno', email: 'peter@example.com', passwordHash: pw, phone: '+254712000002' },
+  });
+
+  const p1 = createdProducts[0];
+  const p2 = createdProducts[1];
+
+  await prisma.order.create({
+    data: {
+      orderNumber: `DT-SEED-${Date.now()}-1`,
+      customerName: c1.name,
+      customerEmail: c1.email,
+      customerPhone: c1.phone || '',
+      deliveryAddress: 'Nairobi, Kenya',
+      paymentMethod: 'mpesa',
+      paymentStatus: 'PAID',
+      subtotal: p1.price,
+      deliveryFee: 0,
+      totalAmount: p1.price,
+      status: 'DELIVERED',
+      customerId: c1.id,
+      items: { create: [{ productId: p1.id, productName: p1.name, unitPrice: p1.price, quantity: 1 }] },
+    },
+  });
+
+  await prisma.order.create({
+    data: {
+      orderNumber: `DT-SEED-${Date.now()}-2`,
+      customerName: c2.name,
+      customerEmail: c2.email,
+      customerPhone: c2.phone || '',
+      deliveryAddress: 'Kisumu, Kenya',
+      paymentMethod: 'card',
+      paymentStatus: 'PAID',
+      subtotal: p2.price * 2,
+      deliveryFee: 0,
+      totalAmount: p2.price * 2,
+      status: 'PROCESSING',
+      customerId: c2.id,
+      items: { create: [{ productId: p2.id, productName: p2.name, unitPrice: p2.price, quantity: 2 }] },
+    },
+  });
+
+  await prisma.order.create({
+    data: {
+      orderNumber: `DT-SEED-${Date.now()}-3`,
+      customerName: 'Walk-in Guest',
+      customerEmail: 'guest@example.com',
+      customerPhone: '+254700000000',
+      deliveryAddress: 'Mombasa, Kenya',
+      paymentMethod: 'cod',
+      paymentStatus: 'UNPAID',
+      subtotal: 4500,
+      deliveryFee: 0,
+      totalAmount: 4500,
+      status: 'PENDING',
+      items: {
+        create: [
+          {
+            productId: createdProducts[4].id,
+            productName: createdProducts[4].name,
+            unitPrice: 4500,
+            quantity: 1,
+          },
+        ],
+      },
+    },
+  });
+
+  await prisma.review.create({
+    data: {
+      productId: p1.id,
+      customerId: c1.id,
+      authorName: c1.name,
+      authorEmail: c1.email,
+      rating: 5,
+      body: 'Excellent device, fast delivery.',
+      status: 'APPROVED',
+    },
+  });
+  await prisma.review.create({
+    data: {
+      productId: p2.id,
+      customerId: null,
+      authorName: 'Anonymous',
+      authorEmail: null,
+      rating: 4,
+      body: 'Great laptop, fan can get loud under load.',
+      status: 'PENDING',
+    },
+  });
+
+  await prisma.promotion.create({
+    data: {
+      name: 'Launch Week 10%',
+      discountType: 'PERCENT',
+      value: 10,
+      code: 'TECH10',
+      usageLimit: 500,
+      minOrderValue: 10000,
+      active: true,
+      categoryIds: [],
+      productIds: [],
+    },
+  });
 
   console.log('Seeding completed successfully!');
 }
